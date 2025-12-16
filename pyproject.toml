@@ -1,0 +1,17 @@
+[project]
+name = "prhandler"
+version = "0.1.4"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "azure-devops>=7.1.0b4",
+    "dotenv>=0.9.9",
+    "typer>=0.17.4",
+]
+
+[project.scripts]
+prhandler = "cli:app"
+
+[tool.setuptools]
+py-modules = ["cli", "pr_utils"]
