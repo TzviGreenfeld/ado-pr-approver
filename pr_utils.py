@@ -13,7 +13,6 @@ def _parse_pr_url(pr_url: str) -> Dict:
     Supports URL formats:
     - https://dev.azure.com/{org}/{project}/_git/{repo}/pullrequest/{pr_id}
     - https://{org}.visualstudio.com/{project}/_git/{repo}/pullrequest/{pr_id}
-    
     Args:
         pr_url: Full URL to the pull request
         
@@ -69,12 +68,18 @@ def approve_pr(pr_url: str, pat: str) -> Dict:
     git_client = connection.clients.get_git_client()
     user_id = _get_current_user_id(connection)
     
+    # Get repository GUID by name (more reliable than using name directly)
+    repository = git_client.get_repository(
+        repository_id=pr_info["repository"],
+        project=pr_info["project"]
+    )
+    
     # Vote values: 10 = approved, 5 = approved with suggestions, 0 = no vote, -5 = waiting for author, -10 = rejected
     reviewer = {"vote": 10}  # Approved
     
     result = git_client.create_pull_request_reviewer(
         reviewer=reviewer,
-        repository_id=pr_info["repository"],
+        repository_id=repository.id,
         pull_request_id=pr_info["pull_request_id"],
         reviewer_id=user_id,
         project=pr_info["project"]
@@ -110,12 +115,18 @@ def reset_pr_approval(pr_url: str, pat: str) -> Dict:
     git_client = connection.clients.get_git_client()
     user_id = _get_current_user_id(connection)
     
+    # Get repository GUID by name (more reliable than using name directly)
+    repository = git_client.get_repository(
+        repository_id=pr_info["repository"],
+        project=pr_info["project"]
+    )
+    
     # Vote values: 10 = approved, 5 = approved with suggestions, 0 = no vote, -5 = waiting for author, -10 = rejected
     reviewer = {"vote": 0}  # No vote (reset)
     
     result = git_client.create_pull_request_reviewer(
         reviewer=reviewer,
-        repository_id=pr_info["repository"],
+        repository_id=repository.id,
         pull_request_id=pr_info["pull_request_id"],
         reviewer_id=user_id,
         project=pr_info["project"]
