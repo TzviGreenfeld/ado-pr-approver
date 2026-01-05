@@ -13,6 +13,7 @@ def _parse_pr_url(pr_url: str) -> Dict:
     Supports URL formats:
     - https://dev.azure.com/{org}/{project}/_git/{repo}/pullrequest/{pr_id}
     - https://{org}.visualstudio.com/{project}/_git/{repo}/pullrequest/{pr_id}
+    - https://{org}.visualstudio.com/DefaultCollection/{project}/_git/{repo}/pullrequest/{pr_id}
     Args:
         pr_url: Full URL to the pull request
         
@@ -26,9 +27,13 @@ def _parse_pr_url(pr_url: str) -> Dict:
     git_index = path_parts.index("_git")
     pr_index = path_parts.index("pullrequest")
     
+    # Project is the part right before _git
+    # This handles both regular URLs and URLs with DefaultCollection
+    project = path_parts[git_index - 1]
+    
     return {
         "organization_url": f"{parsed.scheme}://{parsed.netloc}",
-        "project": path_parts[0],
+        "project": project,
         "repository": path_parts[git_index + 1],
         "pull_request_id": int(path_parts[pr_index + 1])
     }
